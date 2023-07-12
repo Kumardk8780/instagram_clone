@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:instagram_clone/utils/colors.dart';
+import 'package:intl/intl.dart';
 
 class PostCard extends StatelessWidget {
-  const PostCard({super.key});
+  const PostCard({required this.snap, super.key});
+  final snap;
 
   @override
   Widget build(BuildContext context) {
@@ -16,21 +18,22 @@ class PostCard extends StatelessWidget {
                 .copyWith(right: 0),
             child: Row(
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 16,
                   backgroundImage: NetworkImage(
-                      'https://images.unsplash.com/photo-1688999558024-0bbeac1c0102?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHwyfHx8ZW58MHx8fHx8&auto=format&fit=crop&w=600&q=60'),
+                    snap['profImage'],
+                  ),
                 ),
-                const Expanded(
+                Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(left: 8),
+                    padding: const EdgeInsets.only(left: 8),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'username',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          snap['username'],
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -76,7 +79,7 @@ class PostCard extends StatelessWidget {
             height: MediaQuery.of(context).size.height * 0.35,
             width: double.infinity,
             child: Image.network(
-              'https://images.unsplash.com/photo-1688999558024-0bbeac1c0102?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHwyfHx8ZW58MHx8fHx8&auto=format&fit=crop&w=600&q=60',
+              snap['postUrl'],
               fit: BoxFit.cover,
             ),
           ),
@@ -125,7 +128,7 @@ class PostCard extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                       ),
                   child: Text(
-                    '1,231 Likes',
+                    '${snap['likes'].length} likes',
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
@@ -133,17 +136,17 @@ class PostCard extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.only(top: 8),
                   child: RichText(
-                    text: const TextSpan(
-                        style: TextStyle(
+                    text: TextSpan(
+                        style: const TextStyle(
                           color: primaryColor,
                         ),
                         children: [
                           TextSpan(
-                            text: 'username',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            text: snap['username'],
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           TextSpan(
-                            text: ' Hey this is some description to be removed',
+                            text: ' ${snap['description']}',
                           ),
                         ]),
                   ),
@@ -163,9 +166,11 @@ class PostCard extends StatelessWidget {
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: const Text(
-                    '12/07/2023',
-                    style: TextStyle(
+                  child: Text(
+                    DateFormat.yMMMd().format(
+                      snap['datePublished'].toDate(),
+                    ),
+                    style: const TextStyle(
                       fontSize: 16,
                       color: secondaryColor,
                     ),
