@@ -31,6 +31,7 @@ class AuthMethods {
           password.isNotEmpty ||
           username.isNotEmpty ||
           bio.isNotEmpty ||
+          // ignore: unnecessary_null_comparison
           file != null) {
         //register user
         UserCredential cred = await _auth.createUserWithEmailAndPassword(
@@ -38,6 +39,7 @@ class AuthMethods {
           password: password,
         );
 
+        // ignore: avoid_print
         print(cred.user!.uid);
 
         String photoUrl = await StorageMethods()
