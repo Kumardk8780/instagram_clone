@@ -6,9 +6,10 @@ import 'package:instagram_clone/resources/storage_methods.dart';
 import '../models/user.dart' as model;
 
 class AuthMethods {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  //get user details
   Future<model.User> getUserDetails() async {
     User currentUser = _auth.currentUser!;
 
@@ -18,6 +19,7 @@ class AuthMethods {
     return model.User.fromSnap(snap);
   }
 
+  //Signing up User
   Future<String> signUpUser({
     required String email,
     required String password,
@@ -31,20 +33,18 @@ class AuthMethods {
           password.isNotEmpty ||
           username.isNotEmpty ||
           bio.isNotEmpty ||
+          // ignore: unnecessary_null_comparison
           file != null) {
-        //register user
+        //register user in auth with email and passwrod
         UserCredential cred = await _auth.createUserWithEmailAndPassword(
           email: email,
           password: password,
         );
 
-        print(cred.user!.uid);
-
         String photoUrl = await StorageMethods()
             .uploadImageToStorage('profilePics', file, false);
 
         // add user to our database
-
         model.User user = model.User(
           username: username,
           uid: cred.user!.uid,
@@ -60,6 +60,8 @@ class AuthMethods {
             );
 
         res = "succes";
+      } else {
+        res = "Please enter all the fields";
       }
     } catch (err) {
       res = err.toString();
@@ -68,7 +70,7 @@ class AuthMethods {
   }
 
   //loggin in user
-  Future<String?> loginUser({
+  Future<String> loginUser({
     required String email,
     required String pass,
   }) async {
@@ -85,5 +87,9 @@ class AuthMethods {
       res = err.toString();
     }
     return res;
+  }
+
+  Future<void> signOut() async {
+    await _auth.signOut();
   }
 }

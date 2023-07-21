@@ -43,7 +43,7 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
       body: PageView(
         controller: pageController,
         onPageChanged: onPageChanged,
-        physics: const NeverScrollableScrollPhysics(),
+        // physics: const NeverScrollableScrollPhysics(),
         children: homeScreenItems,
       ),
       bottomNavigationBar: CupertinoTabBar(
@@ -91,6 +91,7 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
           ),
         ],
         onTap: navigationTapped,
+        currentIndex: _page,
       ),
     );
   }
