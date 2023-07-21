@@ -5,14 +5,14 @@ import 'package:provider/provider.dart';
 import '../utils/gobal_variables.dart';
 
 class ResponsiveLayout extends StatefulWidget {
+  final Widget webScreenLayout;
+  final Widget mobileScreenLayout;
+
   const ResponsiveLayout({
     super.key,
     required this.webScreenLayout,
     required this.mobileScreenLayout,
   });
-
-  final Widget webScreenLayout;
-  final Widget mobileScreenLayout;
 
   @override
   State<ResponsiveLayout> createState() => _ResponsiveLayoutState();
@@ -26,8 +26,9 @@ class _ResponsiveLayoutState extends State<ResponsiveLayout> {
   }
 
   addData() async {
-    UserProvider _userProvider = Provider.of(context, listen: false);
-    await _userProvider.refreshUser();
+    UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: false);
+    await userProvider.refreshUser();
   }
 
   @override
@@ -35,6 +36,7 @@ class _ResponsiveLayoutState extends State<ResponsiveLayout> {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth > webScreenSize) {
+          //600 can be changed to 900 if you want to display tablet screen size
           return widget.webScreenLayout;
         }
         return widget.mobileScreenLayout;

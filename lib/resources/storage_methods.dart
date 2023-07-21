@@ -1,13 +1,12 @@
 import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:uuid/uuid.dart';
 
 class StorageMethods {
-  final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   // adding image to firebase storage
   Future<String> uploadImageToStorage(
@@ -20,6 +19,8 @@ class StorageMethods {
       ref = ref.child(id);
     }
 
+    //putting in uint8list format
+    //upload task like a future but not future
     UploadTask uploadTask = ref.putData(file);
 
     TaskSnapshot snap = await uploadTask;

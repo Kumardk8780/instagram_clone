@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_clone/providers/user_provider.dart';
-import 'package:instagram_clone/screens/singup_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
@@ -44,8 +43,8 @@ class MyApp extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.active) {
               if (snapshot.hasData) {
                 return const ResponsiveLayout(
-                  webScreenLayout: WebScreenLayout(),
                   mobileScreenLayout: MobileScreenLayout(),
+                  webScreenLayout: WebScreenLayout(),
                 );
               } else if (snapshot.hasError) {
                 return Center(

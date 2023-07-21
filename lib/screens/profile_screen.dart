@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram_clone/resources/auth_methods.dart';
 import 'package:instagram_clone/resources/firestore_methods.dart';
 import 'package:instagram_clone/screens/login_screen.dart';
 import 'package:instagram_clone/utils/colors.dart';
@@ -38,7 +39,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       isLoading = true;
     });
     try {
-      DocumentSnapshot userSnap = await FirebaseFirestore.instance
+      var userSnap = await FirebaseFirestore.instance
           .collection('users')
           .doc(widget.uid)
           .get();
@@ -48,15 +49,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           .collection('posts')
           .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
           .get();
+
       postLen = postSnap.docs.length;
-      followers =
-          (userSnap.data()! as Map<String, dynamic>)['followers'].length;
-      following =
-          (userSnap.data()! as Map<String, dynamic>)['following'].length;
-      isFollowing = (userSnap.data()! as Map)['followers']
+      userData = userSnap.data()!;
+      followers = userSnap.data()!['followers'].length;
+      following = userSnap.data()!['following'].length;
+      isFollowing = userSnap
+          .data()!['followers']
           .contains(FirebaseAuth.instance.currentUser!.uid);
 
-      userData = userSnap.data()! as dynamic;
       setState(() {});
     } catch (e) {
       showSnackBar(e.toString(), context);
@@ -114,29 +115,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     FirebaseAuth.instance.currentUser!.uid ==
                                             widget.uid
                                         ? FollowButton(
+                                            text: 'Sign Out',
                                             backgroundColor:
                                                 mobileBackgroundColor,
-                                            borderColor: Colors.grey,
                                             textColor: primaryColor,
-                                            text: 'Sign Out',
+                                            borderColor: Colors.grey,
                                             function: () async {
-                                              await FirestoreMethods()
-                                                  .signOut();
-                                              Navigator.of(context)
-                                                  .pushReplacement(
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const LoginScreen(),
-                                                ),
-                                              );
+                                              await AuthMethods().signOut();
+                                              if (context.mounted) {
+                                                Navigator.of(context)
+                                                    .pushReplacement(
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const LoginScreen(),
+                                                  ),
+                                                );
+                                              }
                                             },
                                           )
                                         : isFollowing
                                             ? FollowButton(
-                                                backgroundColor: Colors.white,
-                                                borderColor: Colors.black,
-                                                textColor: Colors.grey,
                                                 text: 'Unfollow',
+                                                backgroundColor: Colors.white,
+                                                textColor: Colors.black,
+                                                borderColor: Colors.grey,
                                                 function: () async {
                                                   await FirestoreMethods()
                                                       .followUser(
@@ -151,10 +153,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 },
                                               )
                                             : FollowButton(
-                                                backgroundColor: Colors.blue,
-                                                borderColor: Colors.blue,
-                                                textColor: Colors.white,
                                                 text: 'Follow',
+                                                backgroundColor: Colors.blue,
+                                                textColor: Colors.white,
+                                                borderColor: Colors.blue,
                                                 function: () async {
                                                   await FirestoreMethods()
                                                       .followUser(
@@ -197,6 +199,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const Divider(),
                 FutureBuilder(
+                  future: FirebaseFirestore.instance
+                      .collection('posts')
+                      .where('uid', isEqualTo: widget.uid)
+                      .get(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
@@ -215,20 +221,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       itemBuilder: (context, index) {
                         DocumentSnapshot snap =
                             (snapshot.data! as dynamic).docs[index];
-                        return Container(
+                        return SizedBox(
                           child: Image(
-                              image: NetworkImage(
-                                snap['postUrl'],
-                              ),
-                              fit: BoxFit.cover),
+                            image: NetworkImage(snap['postUrl']),
+                            fit: BoxFit.cover,
+                          ),
                         );
                       },
                     );
                   },
-                  future: FirebaseFirestore.instance
-                      .collection('posts')
-                      .where('uid', isEqualTo: widget.uid)
-                      .get(),
                 ),
               ],
             ),
@@ -243,7 +244,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Text(
           num.toString(),
           style: const TextStyle(
-            fontSize: 22,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -252,7 +253,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Text(
             label,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 15,
               fontWeight: FontWeight.w400,
               color: Colors.grey,
             ),

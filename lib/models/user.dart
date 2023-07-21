@@ -9,7 +9,7 @@ class User {
   final List followers;
   final List following;
 
-  User({
+  const User({
     required this.email,
     required this.uid,
     required this.photoUrl,
@@ -37,7 +37,7 @@ class User {
       email: snapshot["email"] ?? "",
       uid: snapshot["uid"] ?? "",
       photoUrl: snapshot["photo"] ?? "",
-      bio: snapshot["bio"] ?? "",
+      bio: snapshot["bio"] ?? "'",
       followers: snapshot["followers"] ?? "",
       following: snapshot["following"] ?? "",
     );

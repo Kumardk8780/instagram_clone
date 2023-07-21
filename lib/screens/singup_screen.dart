@@ -33,15 +33,8 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _bioController.dispose();
+    // _bioController.dispose();
     _usernameController.dispose();
-  }
-
-  void selectImage() async {
-    Uint8List im = await pickImage(ImageSource.gallery);
-    setState(() {
-      _image = im;
-    });
   }
 
   void singUpUser() async {
@@ -55,35 +48,52 @@ class _SignupScreenState extends State<SignupScreen> {
       bio: _bioController.text,
       file: _image!,
     );
-
-    setState(() {
-      _isLoading = false;
-    });
-    if (res != 'success') {
-      showSnackBar(res, context);
-    } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const ResponsiveLayout(
-            webScreenLayout: WebScreenLayout(),
-            mobileScreenLayout: MobileScreenLayout(),
+    // if string returned is sucess, user has been created
+    if (res == "success") {
+      setState(() {
+        _isLoading = false;
+      });
+      // navigate to the home screen
+      if (context.mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const ResponsiveLayout(
+              mobileScreenLayout: MobileScreenLayout(),
+              webScreenLayout: WebScreenLayout(),
+            ),
           ),
-        ),
-      );
+        );
+      }
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+      // show the error
+      if (context.mounted) {
+        showSnackBar(res, context);
+      }
     }
   }
 
-  void navigateToLogin() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const LoginScreen(),
-      ),
-    );
+  selectImage() async {
+    Uint8List im = await pickImage(ImageSource.gallery);
+    setState(() {
+      _image = im;
+    });
   }
+
+  // void navigateToLogin() {
+  //   Navigator.of(context).push(
+  //     MaterialPageRoute(
+  //       builder: (context) => const LoginScreen(),
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -98,8 +108,6 @@ class _SignupScreenState extends State<SignupScreen> {
               SvgPicture.asset(
                 'assets/ic_instagram.svg',
                 height: 64,
-                // ignore: deprecated_member_use
-                color: Colors.white,
               ),
               const SizedBox(height: 64),
               Stack(
@@ -108,12 +116,14 @@ class _SignupScreenState extends State<SignupScreen> {
                       ? CircleAvatar(
                           radius: 64,
                           backgroundImage: MemoryImage(_image!),
+                          backgroundColor: Colors.red,
                         )
                       : const CircleAvatar(
                           radius: 64,
                           backgroundImage: NetworkImage(
-                            'https://th.bing.com/th?id=OIP.Cl56H6WgxJ8npVqyhefTdQHaHa&w=249&h=249&c=8&rs=1&qlt=90&o=6&dpr=1.5&pid=3.1&rm=2',
+                            'https://i.stack.imgur.com/l60Hf.png',
                           ),
+                          backgroundColor: Colors.red,
                         ),
                   Positioned(
                     bottom: -10,
@@ -127,28 +137,28 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               const SizedBox(height: 24),
               TextFieldInput(
-                textEditingController: _usernameController,
                 hintText: 'Enter Your Username',
                 textInputType: TextInputType.text,
+                textEditingController: _usernameController,
               ),
               const SizedBox(height: 24),
               TextFieldInput(
-                textEditingController: _emailController,
                 hintText: 'Enter Your E-Mail',
                 textInputType: TextInputType.emailAddress,
+                textEditingController: _emailController,
               ),
               const SizedBox(height: 24),
               TextFieldInput(
-                textEditingController: _passwordController,
                 hintText: 'Enter Password',
                 textInputType: TextInputType.text,
+                textEditingController: _passwordController,
                 isPass: true,
               ),
               const SizedBox(height: 24),
               TextFieldInput(
-                textEditingController: _bioController,
                 hintText: 'Enter Your Bio',
                 textInputType: TextInputType.text,
+                textEditingController: _bioController,
               ),
               const SizedBox(height: 24),
               InkWell(
@@ -163,13 +173,11 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     color: blueColor,
                   ),
-                  child: _isLoading
-                      ? const Center(
-                          child: CircularProgressIndicator(
-                            color: primaryColor,
-                          ),
-                        )
-                      : const Text('Sing Up'),
+                  child: !_isLoading
+                      ? const Text('Sing Up')
+                      : const CircularProgressIndicator(
+                          color: primaryColor,
+                        ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -185,7 +193,11 @@ class _SignupScreenState extends State<SignupScreen> {
                     child: const Text("Already have an Account? "),
                   ),
                   GestureDetector(
-                    onTap: navigateToLogin,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const LoginScreen(),
+                      ),
+                    ),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: const Text(

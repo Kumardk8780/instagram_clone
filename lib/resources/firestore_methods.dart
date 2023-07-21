@@ -1,6 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:instagram_clone/models/post.dart';
 import 'package:instagram_clone/resources/storage_methods.dart';
 import 'package:uuid/uuid.dart';
@@ -43,10 +42,12 @@ class FirestoreMethods {
     return res;
   }
 
-  Future<void> likePost(String postId, String uid, List likes) async {
+  //Like Post
+  Future<String> likePost(String postId, String uid, List likes) async {
+    String res = "some error occured";
     try {
       if (likes.contains(uid)) {
-        await _firestore.collection('posts').doc(postId).update({
+        _firestore.collection('posts').doc(postId).update({
           'likes': FieldValue.arrayRemove([uid]),
         });
       } else {
@@ -54,15 +55,17 @@ class FirestoreMethods {
           'likes': FieldValue.arrayUnion([uid]),
         });
       }
+      res = 'Success';
     } catch (e) {
-      print(
-        e.toString(),
-      );
+      res = e.toString();
     }
+    return res;
   }
 
-  Future<void> postComment(String postId, String text, String uid, String name,
-      String profilePic) async {
+  //Post comment
+  Future<String> postComment(String postId, String text, String uid,
+      String name, String profilePic) async {
+    String res = "Some error occured";
     try {
       if (text.isNotEmpty) {
         String commentId = const Uuid().v1();
@@ -79,20 +82,26 @@ class FirestoreMethods {
           'commentId': commentId,
           'datePublished': DateTime.now(),
         });
+        res = "success";
       } else {
-        print('Text is empty');
+        res = 'Please enter text';
       }
     } catch (e) {
-      print(e.toString());
+      res = (e.toString());
     }
+    return res;
   }
 
-  Future<void> deletePost(String postId) async {
+  //Delete Post
+  Future<String> deletePost(String postId) async {
+    String res = "some error occured";
     try {
       await _firestore.collection('posts').doc(postId).delete();
+      res = "success";
     } catch (e) {
-      print(e.toString());
+      res = e.toString();
     }
+    return res;
   }
 
   Future<void> followUser(
@@ -120,11 +129,7 @@ class FirestoreMethods {
         });
       }
     } catch (e) {
-      print(e.toString());
+      if (kDebugMode) print(e.toString());
     }
-  }
-
-  Future<void> signOut() async {
-    await FirebaseAuth.instance.signOut();
   }
 }

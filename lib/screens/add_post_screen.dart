@@ -21,8 +21,8 @@ class AddPostScreen extends StatefulWidget {
 
 class _AddPostScreenState extends State<AddPostScreen> {
   Uint8List? _file;
-  final TextEditingController _descriptionController = TextEditingController();
   bool _isLoading = false;
+  final TextEditingController _descriptionController = TextEditingController();
 
   void postImage(
     String uid,
@@ -45,7 +45,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
         setState(() {
           _isLoading = false;
         });
-        showSnackBar('Posted', context);
+        if (context.mounted) {
+          showSnackBar("Posted", context);
+        }
         clearImage();
       } else {
         setState(() {
@@ -58,10 +60,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
     }
   }
 
-  _selectImage(BuildContext context) async {
+  _selectImage(BuildContext parentContext) async {
     return showDialog(
-        context: context,
-        builder: (context) {
+        context: parentContext,
+        builder: (BuildContext context) {
           return SimpleDialog(
             title: const Text('Create a Post'),
             children: [
@@ -115,7 +117,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final User user = Provider.of<UserProvider>(context).getUser;
+    final UserProvider user = Provider.of<UserProvider>(context);
 
     return _file == null
         ? Center(
@@ -128,15 +130,18 @@ class _AddPostScreenState extends State<AddPostScreen> {
             appBar: AppBar(
               backgroundColor: mobileBackgroundColor,
               leading: IconButton(
-                onPressed: () {},
                 icon: const Icon(Icons.arrow_back),
+                onPressed: clearImage,
               ),
               title: const Text('Post to'),
               centerTitle: false,
               actions: [
                 TextButton(
-                  onPressed: () =>
-                      postImage(user.uid, user.username, user.photoUrl),
+                  onPressed: () => postImage(
+                    user.getUser.uid,
+                    user.getUser.username,
+                    user.getUser.photoUrl,
+                  ),
                   child: const Text(
                     'Post',
                     style: TextStyle(
@@ -148,6 +153,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 ),
               ],
             ),
+
+            //Post Form
             body: Column(
               children: [
                 _isLoading
@@ -162,11 +169,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   children: [
                     CircleAvatar(
                       backgroundImage: NetworkImage(
-                        user.photoUrl,
+                        user.getUser.photoUrl,
                       ),
                     ),
                     SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.4,
+                      width: MediaQuery.of(context).size.width * 0.3,
                       child: TextField(
                         controller: _descriptionController,
                         decoration: const InputDecoration(

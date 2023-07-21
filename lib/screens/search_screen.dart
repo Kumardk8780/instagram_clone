@@ -17,7 +17,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     searchController.dispose();
   }
@@ -69,6 +68,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           backgroundImage: NetworkImage(
                             snapshot.data!.docs[index]['photoUrl'],
                           ),
+                          radius: 16,
                         ),
                         title: Text(snapshot.data!.docs[index]['username']),
                       ),
@@ -78,23 +78,23 @@ class _SearchScreenState extends State<SearchScreen> {
               },
             )
           : FutureBuilder(
-              future: FirebaseFirestore.instance.collection('posts').get(),
+              future: FirebaseFirestore.instance
+                  .collection('posts')
+                  .orderBy('datePublished')
+                  .get(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                return StaggeredGridView.countBuilder(
+                return MasonryGridView.count(
                   crossAxisCount: 3,
-                  itemCount: snapshot.data!.docs.length,
-                  // gridDelegate: gridDelegate,
-                  itemBuilder: (context, index) =>
-                      Image.network(snapshot.data!.docs[index]['postUrl']),
-                  staggeredTileBuilder: (index) => StaggeredTile.count(
-                    (index % 7 == 0) ? 2 : 1,
-                    (index % 7 == 0) ? 2 : 1,
+                  itemCount: (snapshot.data! as dynamic).docs.length,
+                  itemBuilder: (context, index) => Image.network(
+                    (snapshot.data! as dynamic).docs[index]['postUrl'],
+                    fit: BoxFit.cover,
                   ),
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8.0,
+                  crossAxisSpacing: 8.0,
                 );
               }),
     );
